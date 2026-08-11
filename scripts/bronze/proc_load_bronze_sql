@@ -1,0 +1,117 @@
+/*
+Stored procedure - Bronze layer  - (Source - > Bronze)
+performs the following actions - 
+- truncates the tables before laoding data.
+- uses bulk insert cmd to load data from csv to bronze tables.
+
+*/
+
+create or alter procedure bronze.load_bronze as
+begin
+	declare @starttime Datetime , @endtime datetime, @batch_starttime datetime, @batch_endtime datetime
+	Begin try
+		set @batch_starttime = getdate();
+		print '======= CRM tables =============='
+
+		set @starttime = GetDate();
+		truncate table bronze.crm_cust_info
+		bulk insert bronze.crm_cust_info
+		from 'C:\Users\Sanket\Downloads\sql-data-warehouse-project\sql-data-warehouse-project\datasets\source_crm\cust_info.csv'
+		with (
+		firstrow = 2,
+		fieldterminator = ',',
+		tablock
+		);
+		select count(*) from bronze.crm_cust_info;
+
+		set @endtime = GetDate();
+		print  '>> Load duration' + cast(DATEDIff(second, @starttime, @endtime) as nvarchar) + 'seconds';
+		print '--------------------------------------'
+
+		set @starttime = GetDate();
+		truncate table bronze.crm_prd_info
+		bulk insert bronze.crm_prd_info
+		from 'C:\Users\Sanket\Downloads\sql-data-warehouse-project\sql-data-warehouse-project\datasets\source_crm\prd_info.csv'
+		with (
+		firstrow = 2,
+		fieldterminator = ',',
+		tablock
+		);
+		select count(*) from bronze.crm_prd_info;
+		set @endtime = GetDate();
+		print  '>> Load duration' + cast(DATEDIff(second, @starttime, @endtime) as nvarchar) + 'seconds';
+		print '--------------------------------------'
+
+		set @starttime = GetDate();
+		truncate table bronze.crm_sales_details
+		bulk insert bronze.crm_sales_details
+		from 'C:\Users\Sanket\Downloads\sql-data-warehouse-project\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
+		with (
+		firstrow = 2,
+		fieldterminator = ',',
+		tablock
+		);
+		select count(*) from bronze.crm_sales_details;
+		set @endtime = GetDate();
+		print  '>> Load duration' + cast(DATEDIff(second, @starttime, @endtime) as nvarchar) + 'seconds';
+		print '--------------------------------------'
+
+
+		print '======= ERP tables =============='
+
+		set @starttime = GetDate();
+		truncate table bronze.erp_cust_az12
+		bulk insert bronze.erp_cust_az12
+		from 'C:\Users\Sanket\Downloads\sql-data-warehouse-project\sql-data-warehouse-project\datasets\source_erp\CUST_AZ12.csv'
+		with (
+		firstrow = 2,
+		fieldterminator = ',',
+		tablock
+		);
+		select count(*) from bronze.erp_cust_az12;
+		set @endtime = GetDate();
+		print  '>> Load duration' + cast(DATEDIff(second, @starttime, @endtime) as nvarchar) + 'seconds';
+		print '--------------------------------------'
+
+		set @starttime = GetDate();
+		truncate table bronze.erp_loc_a101
+		bulk insert bronze.erp_loc_a101
+		from 'C:\Users\Sanket\Downloads\sql-data-warehouse-project\sql-data-warehouse-project\datasets\source_erp\LOC_A101.csv'
+		with (
+		firstrow = 2,
+		fieldterminator = ',',
+		tablock
+		);
+		select count(*) from bronze.erp_loc_a101;
+		set @endtime = GetDate();
+		print  '>> Load duration' + cast(DATEDIff(second, @starttime, @endtime) as nvarchar) + 'seconds';
+		print '--------------------------------------'
+
+
+		set @starttime = GetDate();
+		truncate table bronze.erp_px_cat_g1v2
+		bulk insert bronze.erp_px_cat_g1v2
+		from 'C:\Users\Sanket\Downloads\sql-data-warehouse-project\sql-data-warehouse-project\datasets\source_erp\PX_CAT_G1V2.csv'
+		with (
+		firstrow = 2,
+		fieldterminator = ',',
+		tablock
+		);
+		select count(*) from bronze.erp_px_cat_g1v2;
+		set @endtime = GetDate();
+		print  '>> Load duration' + cast(DATEDIff(second, @starttime, @endtime) as nvarchar) + 'seconds';
+		print '--------------------------------------'
+		set @batch_endtime = getdate();
+
+		print 'loading bronze batch time - '+ cast(DATEDIff(second, @batch_starttime, @batch_endtime) as nvarchar)
+
+	end try
+	begin catch
+		print '============'
+		print 'ERROR Occurred in loading bronze layer'+ ERROR_Message()
+		print '============'
+	end catch
+end
+
+
+
